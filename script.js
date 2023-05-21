@@ -1,60 +1,45 @@
-// SpeechRecognition object for speech recognition
-const recognition = new webkitSpeechRecognition() || SpeechRecognition();
+// Fetch photos from the Unsplash API based on the search term
+function fetchPhotos(searchTerm) {
+  var endpoint = 'https://api.unsplash.com/search/photos';
+  var clientId = 'YOUR_UNSPLASH_CLIENT_ID'; // Replace with your Unsplash client ID
+  var url = `${endpoint}?query=${searchTerm}&client_id=${clientId}`;
 
-// Set properties for speech recognition
-recognition.lang = 'en-US';
-recognition.continuous = true;
-recognition.interimResults = false;
+  fetch(url)
+    .then(response => response.json())
+    .then(data => {
+      displayPhotos(data.results);
+    })
+    .catch(error => {
+      console.log('Error fetching photos:', error);
+    });
+}
 
-// Get DOM elements
-const outputContainer = document.getElementById('output-container');
-const output = document.getElementById('output');
-const userInput = document.getElementById('user-input');
-const submitBtn = document.getElementById('submitBtn');
+// Display the fetched photos on the website
+function displayPhotos(photos) {
+  var resultsDiv = document.getElementById('results');
+  resultsDiv.innerHTML = '';
 
-// Event listener for submit button click
-submitBtn.addEventListener('click', processUserInput);
+  photos.forEach(photo => {
+    var resultDiv = document.createElement('div');
+    resultDiv.className = 'result';
 
-// Event listener for speech recognition result
-recognition.onresult = (event) => {
-  const result = event.results[0][0].transcript;
-  output.textContent = `You said: ${result}`;
-};
+    var img = document.createElement('img');
+    img.src = photo.urls.regular;
+    img.alt = photo.alt_description;
 
-// Event listener for speech recognition end
-recognition.onend = () => {
-  submitBtn.disabled = false;
-  submitBtn.textContent = 'Submit';
-};
+    resultDiv.appendChild(img);
+    resultsDiv.appendChild(resultDiv);
+  });
+}
 
-// Event listener for user input form submission
-userInput.addEventListener('keyup', (event) => {
-  if (event.key === 'Enter') {
-    processUserInput();
-  }
-});
-
-// Function to handle user input processing
-function processUserInput() {
-  const userInputText = userInput.value;
-  if (userInputText) {
-    output.textContent = `You asked: ${userInputText}`;
-    userInput.value = '';
-  } else {
-    output.textContent = 'Please enter a valid input.';
+// Get the user's search term and initiate the photo search
+function searchPhotos() {
+  var searchTerm = document.getElementById('search-input').value.trim();
+  if (searchTerm !== '') {
+    fetchPhotos(searchTerm);
   }
 }
 
-// Function to start speech recognition
-function startSpeechRecognition() {
-  recognition.start();
-  submitBtn.disabled = true;
-  submitBtn.textContent = 'Listening...';
-}
-
-// Function to stop speech recognition
-function stopSpeechRecognition() {
-  recognition.stop();
-  submitBtn.disabled = true;
-  submitBtn.textContent = 'Submit';
-}
+// Attach the searchPhotos function to the search button's click event
+var searchButton = document.getElementById('search-button');
+searchButton.addEventListener('click', searchPhotos);
