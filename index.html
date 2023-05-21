@@ -2,11 +2,17 @@
 <html>
 <head>
   <title>Voice Assistant</title>
+  <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
   <h1>Voice Assistant</h1>
-  <button id="start-btn">Start Listening</button>
-  <div id="output"></div>
+  <div id="output-container" class="container">
+    <p id="output"></p>
+  </div>
+  <div id="input-container" class="container">
+    <input type="text" id="user-input" placeholder="Ask me something...">
+    <button id="submitBtn">Submit</button>
+  </div>
 
   <script src="script.js"></script>
 </body>
