@@ -1,59 +1,53 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Personal Assistant</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-    }
-  </style>
-</head>
-<body>
-  <h1>Personal Assistant</h1>
-  <p id="response">Waiting for your command...</p>
-  
-  <script>
-    const assistantName = "Bogo";
-    const responseElement = document.getElementById("response");
+import os
+import time
+import pyaudio
+import speech_recognition as sr
+import playsound 
+from gtts import gTTS
+import openai
 
-    // Function to handle user commands
-    function handleCommand(command) {
-      const lowercaseCommand = command.toLowerCase();
 
-      if (lowercaseCommand.includes("hello") || lowercaseCommand.includes("hi")) {
-        respond("Hello! How can I assist you today?");
-      } else if (lowercaseCommand.includes("time")) {
-        const currentTime = new Date().toLocaleTimeString();
-        respond(`The current time is ${currentTime}`);
-      } else if (lowercaseCommand.includes("date")) {
-        const currentDate = new Date().toLocaleDateString();
-        respond(`Today is ${currentDate}`);
-      } else {
-        respond("Sorry, I didn't understand that command. Can you please rephrase?");
-      }
-    }
+api_key = "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"
 
-    // Function to display the response
-    function respond(message) {
-      responseElement.textContent = message;
-    }
+lang ='en'
 
-    // Function to listen for trigger phrase
-    function listenForTrigger(event) {
-      const spokenText = event.results[0][0].transcript;
-      if (spokenText.toLowerCase().includes(`hey ${assistantName.toLowerCase()}`)) {
-        const command = spokenText.substring(spokenText.indexOf(assistantName) + assistantName.length + 1);
-        handleCommand(command);
-      }
-    }
+openai.api_key = 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
 
-    // Start listening for speech recognition
-    const recognition = new webkitSpeechRecognition() || SpeechRecognition();
-    recognition.lang = "en-US";
-    recognition.continuous = true;
-    recognition.onresult = listenForTrigger;
-    recognition.start();
-  </script>
-</body>
-</html>
+
+guy = ""
+
+while True:
+    def get_adio():
+        r = sr.Recognizer()
+        with sr.Microphone(device_index=1) as source:
+            audio = r.listen(source)
+            said = ""
+
+            try:
+                said = r.recognize_google(audio)
+                print(said)
+                global guy 
+                guy = said
+                
+
+                if "Friday" in said:
+                    words = said.split()
+                    new_string = ' '.join(words[1:])
+                    print(new_string) 
+                    completion = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=[{"role": "user", "content":said}])
+                    text = completion.choices[0].message.content
+                    speech = gTTS(text = text, lang=lang, slow=False, tld="com.au")
+                    speech.save("welcome1.mp3")
+                    playsound.playsound("welcome1.mp3")
+                    
+            except Exception:
+                print("Exception")
+
+
+        return said
+
+    if "stop" in guy:
+        break
+
+
+    get_adio()
